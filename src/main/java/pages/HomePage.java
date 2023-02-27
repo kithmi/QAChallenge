@@ -10,10 +10,13 @@ import java.util.List;
 public class HomePage {
 
     WebDriver driver;
+    String pageTitle = "fashionette | Designer Handtaschen, Schuhe, Accessoires & Beauty online kaufen ";
 
     private By userLoginIcon = By.xpath("//a[@data-id = 'user login']");
     private By headerLinks = By.xpath("//div[@class='header__navigation']/ul//li");
-    private By title = By.xpath("//title[text()='fashionette | Designer Handtaschen, Schuhe, Accessoires & Beauty online kaufen ']");
+    private By eleShadowHost = By.id ("usercentrics-root");
+    private By btnAcceptAllCookies = By.cssSelector("  button[data-testid='uc-accept-all-button']");
+    private By title = By.xpath("//title[text()='"+pageTitle+"']");
 
     public HomePage(WebDriver driver){
         this.driver = driver;
@@ -29,13 +32,20 @@ public class HomePage {
     }
 
     public void acceptCookiesAlert(){
-        WebElement shadowHost = driver.findElement (By.id ("usercentrics-root"));
+        WebElement shadowHost = driver.findElement (eleShadowHost);
         SearchContext shadowRoot = getShadowRootElement(shadowHost);
-        WebElement btnAccept = shadowRoot.findElement(By.cssSelector("  button[data-testid='uc-accept-all-button']"));
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.elementToBeClickable(shadowRoot.findElement(btnAcceptAllCookies)));
+        WebElement btnAccept = shadowRoot.findElement(btnAcceptAllCookies);
         if(btnAccept.isDisplayed()){
             btnAccept.click();
         }
     }
+
+    /**
+     * This method is to select a link from the header list
+     * @param linkText link name as in the header example: Taschen
+     * @return ItemListPage object if link found, null if link not found
+     */
     public ItemListPage clickHeaderLink(String linkText){
 
         List<WebElement> hLinks = driver.findElements(headerLinks);
@@ -47,10 +57,15 @@ public class HomePage {
         }
         return null;
     }
+
+    /**
+     * This method is to capture the shadow root element
+     * @param element shadow host element
+     * @return search context element
+     */
     public SearchContext getShadowRootElement(WebElement element) {
-        SearchContext ele = (SearchContext) ((JavascriptExecutor)driver)
+        return (SearchContext) ((JavascriptExecutor)driver)
                 .executeScript("return arguments[0].shadowRoot", element);
-        return ele;
     }
 
 }

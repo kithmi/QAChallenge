@@ -4,27 +4,32 @@ import base.BaseTests;
 import org.testng.annotations.Test;
 import pages.*;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class CheckOutTests extends BaseTests {
+    String expectedTitle = "fashionette | Designer Handtaschen, Schuhe, Accessoires & Beauty online kaufen";
     @Test
     public void testApplyAVoucher(){
-        assertEquals(myHomePage.getLoginTitle(),"fashionette | Designer Handtaschen, Schuhe, Accessoires & Beauty online kaufen","Incorrect Home Page");
-        LoginPage loginPage = myHomePage.clickUserLoginIcon();
-        assertEquals(loginPage.getLoginTitle(),"Designertaschen und Accessoires | fashionette","Incorrect login page title");
-        loginPage.enterEmail("QA@fashionette.de");
-        loginPage.enterPassword("!8Ntr*BM@!#G3VH");
-        CustomerAccountPage customerAccountPage = loginPage.clickLogin();
-        assertTrue(customerAccountPage.getWelcomeCustomerMessage().contains("Hallo john!"),"Incorrect Login Success Message");
+        login();
         goHome();
-        assertEquals(myHomePage.getLoginTitle(),"fashionette | Designer Handtaschen, Schuhe, Accessoires & Beauty online kaufen","Incorrect Home Page");
+
+        //verify success navigation to the home page
+        assertEquals(myHomePage.getLoginTitle(),expectedTitle,"Incorrect Home Page title");
         ItemListPage itemListPage = myHomePage.clickHeaderLink("Taschen");
-        ItemViewPage itemViewPage = itemListPage.selectAnItem("Liz Shopper Medium Cognac","MCM");
+        ItemViewPage itemViewPage = itemListPage.selectAnItem("Enisa High Society Satchel Stone","GUESS");
         itemViewPage.clickAddToCartButton();
         CartPage cartPage = itemViewPage.clickHeaderCartIcon();
-        assertTrue(cartPage.getCartItem("Liz Shopper Medium Cognac","MCM"),"Item not found in cart");
+
+        //verify successful item addition to the cart
+        assertTrue(cartPage.getCartItem("Enisa High Society Satchel Stone","GUESS"),"Item not found in cart");
+
         cartPage.clickVoucherLink();
+
+        //verify successful voucher code submition
         assertTrue(cartPage.enterVoucherCodeAndSubmit("QACHALLENGE"),"Voucher code verification unsuccessful!");
+
+        //reverse the changes
+        cartPage.removeVoucherCode("QACHALLENGE");
+        assertTrue(cartPage.clickRemoveCartIcon("Enisa High Society Satchel Stone","GUESS"),"Item removal unsuccessful");
     }
 }
